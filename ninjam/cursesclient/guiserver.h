@@ -77,13 +77,13 @@ class GuiServer : public WebServerBaseClass
 		virtual IPageGenerator *onConnection(JNL_HTTPServ* serv , int port) ;
 
 	private:
-		void returnInitEvents(std::stringstream* outputJSON) ;
-		void returnBpmEvent(std::stringstream* outputJSON) ;
-		void returnBpiEvent(std::stringstream* outputJSON) ;
+		void returnInitState(std::stringstream* outputJSON) ;
+		void returnBpmState(std::stringstream* outputJSON) ;
+		void returnBpiState(std::stringstream* outputJSON) ;
 		void handleMetroMuteEvent(char* data) ;
-		void returnMetroMuteEvent(std::stringstream* outputJSON) ;
+		void returnMetroMuteState(std::stringstream* outputJSON) ;
 		void handleChatEvent(char* data) ;
-		void returnCoreEvents(std::stringstream* outputJSON) ;
+		void returnCoreState(std::stringstream* outputJSON) ;
 
 //int N = 0 ;
 } ;

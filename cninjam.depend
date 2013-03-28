@@ -21,9 +21,9 @@
 
 1125372789 /home/me/src/ninjam/cninjam/WDL/heapbuf.h
 
-1125372064 /home/me/src/ninjam/cninjam/ninjam/audiostream.h
+1364499962 /home/me/src/ninjam/cninjam/ninjam/audiostream.h
 
-1364357298 source:/home/me/src/ninjam/cninjam/ninjam/cursesclient/cursesclient.cpp
+1364500473 source:/home/me/src/ninjam/cninjam/ninjam/cursesclient/cursesclient.cpp
 	<windows.h>
 	"curses.h"
 	"cursesclientinst.h"
@@ -237,13 +237,13 @@
 	"../WDL/jnetlib/jnetlib.h"
 	"../WDL/jnetlib/webserver.h"
 
-1364488353 /home/me/src/ninjam/cninjam/ninjam/cursesclient/guiserver.h
+1364497547 /home/me/src/ninjam/cninjam/ninjam/cursesclient/guiserver.h
 	<windows.h>
 	<sstream>
 	"../../WDL/jnetlib/jnetlib.h"
 	"../../WDL/jnetlib/webserver.h"
 
-1364488930 source:/home/me/src/ninjam/cninjam/ninjam/cursesclient/guiserver.cpp
+1364501978 source:/home/me/src/ninjam/cninjam/ninjam/cursesclient/guiserver.cpp
 	<fstream>
 	"guiserver.h"
 	"../njclient.h"
@@ -252,4 +252,19 @@
 	<windows.h>
 	"jnetlib.h"
 	"webserver.h"
+
+1364500329 source:/home/me/src/ninjam/cninjam/ninjam/audiostream_jack.cpp
+	<stdio.h>
+	<stdlib.h>
+	<errno.h>
+	<signal.h>
+	<unistd.h>
+	<fcntl.h>
+	<pthread.h>
+	<jack/jack.h>
+	"../WDL/pcmfmtcvt.h"
+	"../WDL/ptrlist.h"
+	"../WDL/mutex.h"
+	"njclient.h"
+	"audiostream.h"
 

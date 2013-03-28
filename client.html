@@ -8,13 +8,14 @@
 
 <head>
 	<title>An XHTML 1.0 Strict standard template</title>
-	<meta http-equiv="content-type" 
-		content="text/html;charset=utf-8" />
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 
 	<style type="text/css">
 
 body { color: #fff ; background-color: #000 ; }
-table , #chatTextInput { width: 100% ; }
+/*#mainTable { position: fixed ; margin: auto ; }*/
+#contentTr , #chatTable { height: 100% ; }
+table , #chatEntryInput { width: 100% ; }
 #progressTable { width: 100% ; border: 1px solid white ; }
 
 	</style>
@@ -29,20 +30,24 @@ var DbgSpan ;
 var INIT_INTERVAL = 1000 ;
 var POLL_INTERVAL = 1000 ;//125 ;
 
+// sparse messages
 var INIT_SIGNAL = 'init' ;
 var BPM_SIGNAL = 'bpm' ;
 var BPI_SIGNAL = 'bpi' ;
-var PROGRESS_SIGNAL = 'progress' ;
 var METROMUTE_SIGNAL = 'metromute' ;
 var CHAT_SIGNAL = 'chat' ;
+// periodic messages
+var PROGRESS_SIGNAL = 'progress' ;
 
+var MAX_CHAT_LINES = 5 ;
 var PROGRESS_COLOR = 'blue' ;
 var BEAT_COLOR = 'green' ;
 
 var Events = new Array() ; // [ [event , data] , ... ]
 
 var Body ;
-var ChatTextInput ;
+var ChatMessagesTable ;
+var ChatEntryInput ;
 var ChordsTr ;
 var LoopTr ;
 var StatusLTd ;
@@ -65,11 +70,12 @@ function initGui()
 	var contentTr = document.createElement('tr') ;
 	var metroMuteInput = document.createElement('input') ;
 	var chatTable = document.createElement('table') ;
-	var chatTr = document.createElement('tr') ;
-// TODO: chatTd
+	var chatMessagesTr = document.createElement('tr') ;
+	var chatMessagesTd = document.createElement('td') ;
+	ChatMessagesTable = document.createElement('table') ;
 	var chatEntryTr = document.createElement('tr') ;
-	var chatTextTd = document.createElement('td') ;
-	ChatTextInput = document.createElement('input') ;
+	var chatEntryTd = document.createElement('td') ;
+	ChatEntryInput = document.createElement('input') ;
 	var chatSubmitTd = document.createElement('td') ;
 	var chatSubmitInput = document.createElement('input') ;
 DbgSpan = document.createElement('span') ;
@@ -87,9 +93,12 @@ DbgSpan = document.createElement('span') ;
 	metroMuteInput.type = 'button' ;
 	metroMuteInput.value = 'MetroMute' ;
 	metroMuteInput.onclick = toggleMetroMute ;
-	ChatTextInput.setAttribute('id' , 'chatTextInput') ;
-	ChatTextInput.type = 'text' ;
-	ChatTextInput.autoforus = 'autofocus' ;
+
+	contentTr.setAttribute('id' , 'contentTr') ;
+	chatTable.setAttribute('id' , 'chatTable') ;
+	ChatEntryInput.setAttribute('id' , 'chatEntryInput') ;
+	ChatEntryInput.type = 'text' ;
+	ChatEntryInput.autoforus = 'autofocus' ;
 	chatSubmitInput.type = 'button' ;
 	chatSubmitInput.value = 'Chat' ;
 	chatSubmitInput.onclick = sendChat ;
@@ -101,11 +110,12 @@ menuTr.appendChild(metroMuteInput) ; menuTr.appendChild(DbgSpan) ;
 	mainTable.appendChild(contentTr) ;
 //	chatForm.appendChild(document.createElement('br')) ;
 	contentTr.appendChild(chatTable) ;
-	chatTable.appendChild(chatTr) ;
-// chatTd
+	chatTable.appendChild(chatMessagesTr) ;
+	chatMessagesTr.appendChild(chatMessagesTd) ;
+	chatMessagesTd.appendChild(ChatMessagesTable) ;
 	chatTable.appendChild(chatEntryTr) ;
-	chatEntryTr.appendChild(chatTextTd) ;
-	chatTextTd.appendChild(ChatTextInput) ;
+	chatEntryTr.appendChild(chatEntryTd) ;
+	chatEntryTd.appendChild(ChatEntryInput) ;
 	chatEntryTr.appendChild(chatSubmitTd) ;
 	chatSubmitTd.appendChild(chatSubmitInput) ;
 	mainTable.appendChild(progressTr) ;
@@ -128,7 +138,7 @@ menuTr.appendChild(metroMuteInput) ; menuTr.appendChild(DbgSpan) ;
 function toggleMetroMute() { eventQueue(METROMUTE_SIGNAL , "") ; } ;
 
 function sendChat()
-	{ eventQueue(CHAT_SIGNAL , ChatTextInput.value) ; ChatTextInput.value = "" ; }
+	{ eventQueue(CHAT_SIGNAL , ChatEntryInput.value) ; ChatEntryInput.value = "" ; }
 
 function eventQueue(event , data) { Events.push(event + "?data=" + data) ; }
 
@@ -154,12 +164,14 @@ if (DEBUG && XmlHttp.readyState == 4) console.log("initReceive() status=" + XmlH
 
 if (DEBUG) console.log("initReceive() responseText=" + (DbgSpan.innerHTML = XmlHttp.responseText)) ;
 
-	var events = eval("(" + XmlHttp.responseText + ")") ;
-//	for (event in events) AppEventHandlers[event] ;
-for (ev in events) console.log("events[" + ev + "]=" + events[ev]) ;
-if (events[BPM_SIGNAL]) handleBpm(events[BPM_SIGNAL]) ;
-if (events[BPI_SIGNAL]) handleBpi(events[BPI_SIGNAL]) ;
-if (events[PROGRESS_SIGNAL]) handleProgress(events[PROGRESS_SIGNAL]) ;
+	dispachEvents(eval("(" + XmlHttp.responseText + ")")) ;
+
+handleChat("chat0") ; handleChat("chat1") ; handleChat("chat2") ; handleChat("chat3") ;
+handleChat("chat4") ; handleChat("chat5") ; handleChat("chat6") ; handleChat("chat7") ;
+handleChat("chat8") ; handleChat("chat9") ; handleChat("chat10") ; handleChat("chat11") ;
+handleChat("chat12") ; handleChat("chat13") ; handleChat("chat14") ; handleChat("chat15") ;
+handleChat("chat16") ; handleChat("chat17") ; handleChat("chat18") ; handleChat("chat19") ;
+handleChat("chat20") ; handleChat("chat21") ; handleChat("chat22") ; handleChat("chat23") ;
 }
 
 function eventSend()
@@ -181,14 +193,18 @@ if (DEBUGVB && XmlHttp.readyState == 4) console.log("eventReceive() status=" + X
 if (DEBUGVB) console.log("eventReceive() responseText=" + XmlHttp.responseText) ;
 DbgSpan.innerHTML = XmlHttp.responseText ;
 
+	dispachEvents(eval("(" + XmlHttp.responseText + ")")) ;
+}
+
+function dispachEvents(eventsObj)
+{
 // TODO: method dictionary
-	var events = eval("(" + XmlHttp.responseText + ")") ;
-//	for (event in events) AppEventHandlers[event] ;
-if (DEBUGVB) for (ev in events) console.log("events[" + ev + "]=" + events[ev]) ;
-if (events.hasOwnProperty(BPM_SIGNAL)) handleBpm(events[BPM_SIGNAL]) ;
-if (events.hasOwnProperty(BPI_SIGNAL)) handleBpi(events[BPI_SIGNAL]) ;
-if (events.hasOwnProperty(PROGRESS_SIGNAL)) handleProgress(events[PROGRESS_SIGNAL]) ;
-//if (events.hasOwnProperty(''))
+//	for (event in eventsObj) AppEventHandlers[event] ;
+if (DEBUGVB) for (ev in eventsObj) console.log("eventsObj[" + ev + "]=" + eventsObj[ev]) ;
+if (eventsObj.hasOwnProperty(BPM_SIGNAL)) handleBpm(eventsObj[BPM_SIGNAL]) ;
+if (eventsObj.hasOwnProperty(BPI_SIGNAL)) handleBpi(eventsObj[BPI_SIGNAL]) ;
+if (eventsObj.hasOwnProperty(CHAT_SIGNAL)) handleChat(eventsObj[CHAT_SIGNAL]) ;
+if (eventsObj.hasOwnProperty(PROGRESS_SIGNAL)) handleProgress(eventsObj[PROGRESS_SIGNAL]) ;
 }
 
 
@@ -197,6 +213,13 @@ if (events.hasOwnProperty(PROGRESS_SIGNAL)) handleProgress(events[PROGRESS_SIGNA
 function handleBpm(bpm) { Bpm = bpm ; updateStatus() ; }
 
 function handleBpi(bpi) { Bpi = bpi ; updateStatus() ; updateLoopTable() ; }
+
+function handleChat(chat)
+{
+	var chatTr = document.createElement('tr') ; var rows = ChatMessagesTable.rows ;
+	chatTr.appendChild(newTd(chat)) ; ChatMessagesTable.appendChild(chatTr) ;
+	if (rows.length > MAX_CHAT_LINES) ChatMessagesTable.removeChild(rows[0]) ;
+}
 
 function handleProgress(beat)
 {
@@ -218,7 +241,7 @@ function updateStatus()
 
 function updateLoopTable()
 {
-if (DEBUG) console.log("updateLoopTable() nCells=" +  LoopTr.cells.length + " Bpi=" + Bpi) ;
+if (DEBUG) console.log("updateLoopTable()  IN nCells=" +  LoopTr.cells.length + " Bpi=" + Bpi) ;
 
 	var nCells = LoopTr.cells.length ;
 	while (nCells > Bpi)
@@ -227,11 +250,16 @@ if (DEBUG) console.log("updateLoopTable() nCells=" +  LoopTr.cells.length + " Bp
 		LoopTr.removeChild(LoopTr.cells[nCells--]) ;
 	}
 	while (nCells++ < Bpi)
-		{ ChordsTr.appendChild(newEmptyCell()) ; LoopTr.appendChild(newEmptyCell()) ; }
+		{ ChordsTr.appendChild(newTd("&nbsp;")) ; LoopTr.appendChild(newTd("&nbsp;")) ; }
+
+if (DEBUG) console.log("updateLoopTable() OUT nCells=" +  LoopTr.cells.length + " Bpi=" + Bpi) ;
 }
 
-function newEmptyCell()
-	{ var cell = document.createElement('td') ; cell.innerHTML = "&nbsp;" ; return cell ; }
+
+// instantiation
+
+function newTd(text)
+	{ var cell = document.createElement('td') ; cell.innerHTML = text ; return cell ; }
 
 /*
 function setColSpan()

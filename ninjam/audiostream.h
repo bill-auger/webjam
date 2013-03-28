@@ -20,7 +20,7 @@
 /*
 
   This header is used by NINJAM clients to define an abstract audio streamer interface, as
-  well as declare functions for creating instances of these audio streamers. 
+  well as declare functions for creating instances of these audio streamers.
 
   On Windows, these functions are primarily called from audioconfig.cpp, and on
   the Cocoa client the function is called from Controller.mm.
@@ -28,7 +28,7 @@
   The basic structure is:
 
   The client runs, creates an audiostreamer (below), giving it a SPLPROC, which is it's
-  own function that then in turn calls NJClient::AudioProc. 
+  own function that then in turn calls NJClient::AudioProc.
 
   But this is just the interface declaration etc.
 
@@ -37,6 +37,9 @@
 #ifndef _AUDIOSTREAM_H_
 #define _AUDIOSTREAM_H_
 
+// begin jack kludge
+class NJClient ;
+// end jack kludge
 
 class audioStreamer
 {
@@ -64,6 +67,13 @@ audioStreamer *create_audioStreamer_DS(int srate, int bps, GUID devs[2], int *nb
 #ifdef _MAC
 audioStreamer *create_audioStreamer_CoreAudio(char **dev, int srate, int nch, int bps, SPLPROC proc);
 #else
+// begin jack kludge
+audioStreamer *create_audioStreamer_JACK(const char* clientName,
+					 int nInputChannels,
+					 int nOutputChannels,
+					 SPLPROC proc,
+					 NJClient *njclient);
+// end jack kludge
 audioStreamer *create_audioStreamer_ALSA(char *cfg, SPLPROC proc);
 #endif
 

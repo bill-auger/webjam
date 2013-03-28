@@ -78,6 +78,12 @@ int g_need_disp_update;
 char m_lineinput_str[120];
 char m_chatinput_str[120];
 
+// TODO: make this client a proper class to do away with most of these globals
+//		then once ncurses is removed guiserver can handle the now global g_chat_buffers
+//		instead of keeping its local queue
+GuiServer g_gui_server ;
+WDL_PtrList<char> g_chat_queue ; // g_gui_server queue
+
 WDL_PtrList<char> g_chat_buffers;
 
 void addChatLine(char *src, char *text)
@@ -113,6 +119,9 @@ void addChatLine(char *src, char *text)
   }
   g_chat_buffers.Add(strdup(tmp.Get()));
   g_chat_scroll=0;
+
+// TODO: this will mostly be re-implemented - we will use seperate queue for now
+	g_chat_queue.Add(strdup(tmp.Get()));
 }
 
 WDL_String g_topic;
@@ -1099,7 +1108,10 @@ int main(int argc, char **argv)
 #ifdef _MAC
     g_audio=create_audioStreamer_CoreAudio(&dev_name_in,48000,2,16,audiostream_onsamples);
 #else
-    g_audio=create_audioStreamer_ALSA(dev_name_in,audiostream_onsamples);
+// begin jack kludge
+//    g_audio=create_audioStreamer_ALSA(dev_name_in,audiostream_onsamples);
+		g_audio = create_audioStreamer_JACK("ninjam" , 2 , 2 , audiostream_onsamples , g_client) ;
+// end jack kludge
 #endif
   }
 #endif
@@ -1419,7 +1431,7 @@ int main(int argc, char **argv)
 
 #define GUI_SOCKET_PORT 8080
   // start gui webserver
-  GuiServer guiserver ; guiserver.addListenPort(GUI_SOCKET_PORT) ;
+	g_gui_server.addListenPort(GUI_SOCKET_PORT) ;
 
 #ifdef _WIN32
   DWORD nextupd=GetTickCount()+250;
@@ -1780,7 +1792,7 @@ time(NULL) >= nextupd
       else drawstatusbar();
 
       // process gui messages
-      guiserver.run() ;
+      g_gui_server.run() ;
     }
 
   }
@@ -1940,7 +1952,7 @@ time(NULL) >= nextupd
 
   }
 
-	guiserver.removeListenPort(GUI_SOCKET_PORT) ;
+	g_gui_server.removeListenPort(GUI_SOCKET_PORT) ;
   JNL::close_socketlib();
   return 0;
 }

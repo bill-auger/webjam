@@ -6,7 +6,7 @@
 
 
 extern NJClient *g_client ;
-
+extern WDL_PtrList<char> g_chat_queue ;
 
 IPageGenerator* GuiServer::onConnection(JNL_HTTPServ *serv , int port)
 {
@@ -46,42 +46,47 @@ IPageGenerator* GuiServer::onConnection(JNL_HTTPServ *serv , int port)
 	serv->set_reply_string(HTTP_REPLY_200) ; serv->send_reply() ;
 	std::stringstream outputJSON ; outputJSON << "{" ;
 
-	if (!strcmp(event , INIT_SIGNAL)) returnInitEvents(&outputJSON) ;
+	if (!strcmp(event , INIT_SIGNAL)) returnInitState(&outputJSON) ;
 	else if (!strcmp(event , METROMUTE_SIGNAL))
-		{ handleMetroMuteEvent(data) ; returnMetroMuteEvent(&outputJSON) ; }
+		{ handleMetroMuteEvent(data) ; returnMetroMuteState(&outputJSON) ; }
 	else if (!strcmp(event , CHAT_SIGNAL)) handleChatEvent(data) ;
 
-	returnCoreEvents(&outputJSON) ;
+	returnCoreState(&outputJSON) ;
 	const std::string& outStr = outputJSON.str() ; unsigned int len = outStr.length() ;
 	char out[len + 1] ; sprintf(out , outStr.c_str()) ; out[len - 1] = '}' ;
 	return new MemPageGenerator(strdup(out)) ;
 }
 
-void GuiServer::returnInitEvents(std::stringstream* outputJSON)
+void GuiServer::returnInitState(std::stringstream* outputJSON)
 {
-	returnBpmEvent(outputJSON) ;
-	returnBpiEvent(outputJSON) ;
-	returnMetroMuteEvent(outputJSON) ;
+	returnBpmState(outputJSON) ;
+	returnBpiState(outputJSON) ;
+	returnMetroMuteState(outputJSON) ;
+//returnChatState(outputJSON) ;
 }
 
-void GuiServer::returnBpmEvent(std::stringstream* out)
+void GuiServer::returnBpmState(std::stringstream* out)
 	{ *out << BPM_SIGNAL << ":" << g_client->GetActualBPM() << "," ; }
 
-void GuiServer::returnBpiEvent(std::stringstream* out)
+void GuiServer::returnBpiState(std::stringstream* out)
 	{ *out << BPI_SIGNAL << ":" << g_client->GetBPI() << "," ; }
 
 //TODO: as we are async - let's be specific and use eventData here
 void GuiServer::handleMetroMuteEvent(char* data)
 	{ g_client->config_metronome_mute = !g_client->config_metronome_mute ; }
 
-void GuiServer::returnMetroMuteEvent(std::stringstream* out)
+void GuiServer::returnMetroMuteState(std::stringstream* out)
 	{ *out << METROMUTE_SIGNAL << ":" << ((g_client->config_metronome_mute)? "1" : "0") << "," ; }
 
-void GuiServer::handleChatEvent(char* data) { g_client->ChatMessage_Send("MSG" , data) ; }
+void GuiServer::handleChatEvent(char* data) {
+unsigned int len = strlen(data) + 1 ;
+		char decoded[len] ; url_decode(data , decoded , len) ;
+
+	g_client->ChatMessage_Send("MSG" , strdup(decoded)) ; }
 
 //void handleChatPvtEvent(char* destFullUserName , char* chatMsg) { g_client->ChatMessage_Send("PRIVMSG" , destFullUserName , chatMsg) ; }
 
-void GuiServer::returnCoreEvents(std::stringstream* out)
+void GuiServer::returnCoreState(std::stringstream* out)
 {
 	// interval progress
 	int bpi = g_client->GetBPI() ; int pos , len ; g_client->GetPosition(&pos , &len) ;
@@ -110,4 +115,13 @@ void GuiServer::returnCoreEvents(std::stringstream* out)
 	if (g_client->HasUserInfoChanged())
 	vbox_remote->update();
 */
+
+	// chat messages
+	int chatN = g_chat_queue.GetSize() ;
+	while (chatN--)
+	{
+		char* chat = g_chat_queue.Get(0) ;
+		*out << CHAT_SIGNAL << ":'" << strdup(chat) << "'," ;
+		free(chat) ; g_chat_queue.Delete(0) ;
+	}
 }
