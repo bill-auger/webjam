@@ -120,8 +120,19 @@ void GuiServer::returnCoreState(std::stringstream* out)
 	int chatN = g_chat_queue.GetSize() ;
 	while (chatN--)
 	{
+		// TODO: url_encode() in this class segfaults on certain chars
+		//		but the only char  likely to be problematic for js client
+		//		is the single-quote (our delimiter) so we will just replace them with "&apos;"
+		char* chatItem = g_chat_queue.Get(0) ; std::string chatStr(chatItem) ;
+		unsigned found = chatStr.find_first_of("'") ;
+		while (found != std::string::npos)
+			found = chatStr.replace(found , 1 , "&apos;").find_first_of("'" , found + 1) ;
+		*out << CHAT_SIGNAL << ":'" << chatStr << "'," ;
+		free(chatItem) ; g_chat_queue.Delete(0) ;
+/*
 		char* chat = g_chat_queue.Get(0) ;
 		*out << CHAT_SIGNAL << ":'" << strdup(chat) << "'," ;
 		free(chat) ; g_chat_queue.Delete(0) ;
+*/
 	}
 }

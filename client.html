@@ -99,6 +99,8 @@ DbgSpan = document.createElement('span') ;
 	ChatEntryInput.setAttribute('id' , 'chatEntryInput') ;
 	ChatEntryInput.type = 'text' ;
 	ChatEntryInput.autoforus = 'autofocus' ;
+	ChatEntryInput.onkeydown = function(ev)
+		{ var key = ev.keyCode || ev.which ; if (key == 13) sendChat() ; }	
 	chatSubmitInput.type = 'button' ;
 	chatSubmitInput.value = 'Chat' ;
 	chatSubmitInput.onclick = sendChat ;
@@ -108,7 +110,6 @@ DbgSpan = document.createElement('span') ;
 	mainTable.appendChild(menuTr) ;
 menuTr.appendChild(metroMuteInput) ; menuTr.appendChild(DbgSpan) ;
 	mainTable.appendChild(contentTr) ;
-//	chatForm.appendChild(document.createElement('br')) ;
 	contentTr.appendChild(chatTable) ;
 	chatTable.appendChild(chatMessagesTr) ;
 	chatMessagesTr.appendChild(chatMessagesTd) ;

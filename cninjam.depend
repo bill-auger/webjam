@@ -243,7 +243,7 @@
 	"../../WDL/jnetlib/jnetlib.h"
 	"../../WDL/jnetlib/webserver.h"
 
-1364501978 source:/home/me/src/ninjam/cninjam/ninjam/cursesclient/guiserver.cpp
+1364506290 source:/home/me/src/ninjam/cninjam/ninjam/cursesclient/guiserver.cpp
 	<fstream>
 	"guiserver.h"
 	"../njclient.h"
