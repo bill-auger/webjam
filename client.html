@@ -13,61 +13,235 @@
 
 	<style type="text/css">
 
-body { color:"white" ; background-color:"black" ; }
+body { color: #fff ; background-color: #000 ; }
+table , #chatTextInput { width: 100% ; }
+#progressTable { width: 100% ; border: 1px solid white ; }
 
 	</style>
-</head>
 
-<body>hello
-<script type="text/javascript">
+	<script type="text/javascript">
+// DEBUG
+var DEBUG = true ;
+var DEBUGVB = false ;
+var DbgTextInput
+var DbgSpan ;
 
-var SIGNAL_READY_INTERVAL = 100 ;
-console.log("client loaded");
+var INIT_INTERVAL = 1000 ;
+var POLL_INTERVAL = 1000 ;//125 ;
 
-var xmlHttp = null ;
+var INIT_SIGNAL = 'init' ;
+var BPM_SIGNAL = 'bpm' ;
+var BPI_SIGNAL = 'bpi' ;
+var PROGRESS_SIGNAL = 'progress' ;
+var METROMUTE_SIGNAL = 'metromute' ;
+var CHAT_SIGNAL = 'chat' ;
+
+var PROGRESS_COLOR = 'blue' ;
+var BEAT_COLOR = 'green' ;
+
+var Events = new Array() ; // [ [event , data] , ... ]
+
+var Body ;
+var ChatTextInput ;
+var ChordsTr ;
+var LoopTr ;
+var StatusLTd ;
+var StatusLMd ;
+var StatusLRd ;
+
+var PollInterval ;
+var XmlHttp ;
+
+var Bpm ;
+var Bpi ;
+var Beat ;
 
 
-var body = document.getElementsByTagName('body')[0] ;
-var aForm = document.createElement('form') ;
-var textInput = document.createElement('input') ;
-var submitInput = document.createElement('input') ;
-var aSpan = document.createElement('span') ;
-
-textInput.type = 'text' ;
-textInput.autoforus = 'autofocus' ;
-submitInput.type = 'button' ;
-submitInput.onclick = req ;
-
-body.appendChild(aForm) ;
-aForm.appendChild(textInput) ;
-aForm.appendChild(submitInput) ;
-aForm.appendChild(aSpan) ;
-
-function req()
+function initGui()
 {
-console.log("req() textInput.value=" + textInput.value) ;
+	Body = document.getElementsByTagName('body')[0] ;
+	var mainTable = document.createElement('table') ;
+	var menuTr = document.createElement('tr') ;
+	var contentTr = document.createElement('tr') ;
+	var metroMuteInput = document.createElement('input') ;
+	var chatTable = document.createElement('table') ;
+	var chatTr = document.createElement('tr') ;
+// TODO: chatTd
+	var chatEntryTr = document.createElement('tr') ;
+	var chatTextTd = document.createElement('td') ;
+	ChatTextInput = document.createElement('input') ;
+	var chatSubmitTd = document.createElement('td') ;
+	var chatSubmitInput = document.createElement('input') ;
+DbgSpan = document.createElement('span') ;
+	var progressTr = document.createElement('tr') ;
+	var progressTable = document.createElement('table') ;
+	ChordsTr = document.createElement('tr') ;
+	LoopTr = document.createElement('tr') ;
+	var statusbarTr = document.createElement('tr') ;
+	var statusTable = document.createElement('table') ;
+	var statusTr = document.createElement('tr') ;
+	StatusLTd = document.createElement('td') ;
+	StatusMTd = document.createElement('td') ;
+	StatusRTd = document.createElement('td') ;
 
-var METROMUTE_SIGNAL = "metromute" ;
-// TODO regualar polling with message queue
-	var Url = "events?" + METROMUTE_SIGNAL + "=" + textInput.value ;
+	metroMuteInput.type = 'button' ;
+	metroMuteInput.value = 'MetroMute' ;
+	metroMuteInput.onclick = toggleMetroMute ;
+	ChatTextInput.setAttribute('id' , 'chatTextInput') ;
+	ChatTextInput.type = 'text' ;
+	ChatTextInput.autoforus = 'autofocus' ;
+	chatSubmitInput.type = 'button' ;
+	chatSubmitInput.value = 'Chat' ;
+	chatSubmitInput.onclick = sendChat ;
+	progressTable.setAttribute('id' , 'progressTable') ;
 
-	xmlHttp = new XMLHttpRequest() ;
-	xmlHttp.onreadystatechange = resp ;
-	xmlHttp.open("GET" , Url , true ) ;
-	xmlHttp.send(null) ;
+	Body.appendChild(mainTable) ;
+	mainTable.appendChild(menuTr) ;
+menuTr.appendChild(metroMuteInput) ; menuTr.appendChild(DbgSpan) ;
+	mainTable.appendChild(contentTr) ;
+//	chatForm.appendChild(document.createElement('br')) ;
+	contentTr.appendChild(chatTable) ;
+	chatTable.appendChild(chatTr) ;
+// chatTd
+	chatTable.appendChild(chatEntryTr) ;
+	chatEntryTr.appendChild(chatTextTd) ;
+	chatTextTd.appendChild(ChatTextInput) ;
+	chatEntryTr.appendChild(chatSubmitTd) ;
+	chatSubmitTd.appendChild(chatSubmitInput) ;
+	mainTable.appendChild(progressTr) ;
+	progressTr.appendChild(progressTable) ;
+	progressTable.appendChild(ChordsTr) ;
+	progressTable.appendChild(LoopTr) ;
+	mainTable.appendChild(statusbarTr) ;
+	statusbarTr.appendChild(statusTable) ;
+	statusTable.appendChild(statusTr) ;
+	statusTr.appendChild(StatusLTd) ;
+	statusTr.appendChild(StatusMTd) ;
+	statusTr.appendChild(StatusRTd) ;
+
+	PollInterval = window.setInterval(function() { initSend() ; } , INIT_INTERVAL) ;
 }
 
-function resp()
+
+// input events from user
+
+function toggleMetroMute() { eventQueue(METROMUTE_SIGNAL , "") ; } ;
+
+function sendChat()
+	{ eventQueue(CHAT_SIGNAL , ChatTextInput.value) ; ChatTextInput.value = "" ; }
+
+function eventQueue(event , data) { Events.push(event + "?data=" + data) ; }
+
+
+// gui<->app messaging
+
+function initSend()
 {
-	if (xmlHttp.readyState != 4 || xmlHttp.status != 200) return ;
-console.log("resp() xmlHttp.responseText=" + xmlHttp.responseText) ;
-aSpan.innerHTML = xmlHttp.responseText ;
+if (DEBUG) console.log("initSend()") ;
+
+	XmlHttp = new XMLHttpRequest() ; XmlHttp.onreadystatechange = initReceive ;
+	XmlHttp.open("GET" , INIT_SIGNAL , true ) ; XmlHttp.send(null) ;
+}
+
+function initReceive()
+{
+if (DEBUG && XmlHttp.readyState == 4) console.log("initReceive() status=" + XmlHttp.status) ;
+
+	if (XmlHttp.readyState != 4 || XmlHttp.status != 200) return ;
+
+	window.clearInterval(PollInterval) ;
+	PollInterval = window.setInterval(eventSend , POLL_INTERVAL) ;
+
+if (DEBUG) console.log("initReceive() responseText=" + (DbgSpan.innerHTML = XmlHttp.responseText)) ;
+
+	var events = eval("(" + XmlHttp.responseText + ")") ;
+//	for (event in events) AppEventHandlers[event] ;
+for (ev in events) console.log("events[" + ev + "]=" + events[ev]) ;
+if (events[BPM_SIGNAL]) handleBpm(events[BPM_SIGNAL]) ;
+if (events[BPI_SIGNAL]) handleBpi(events[BPI_SIGNAL]) ;
+if (events[PROGRESS_SIGNAL]) handleProgress(events[PROGRESS_SIGNAL]) ;
+}
+
+function eventSend()
+{
+	var eventData = Events.shift() || "idle" ;
+
+if (DEBUGVB) console.log("eventSend() event=" + eventData) ;
+
+	XmlHttp = new XMLHttpRequest() ; XmlHttp.onreadystatechange = eventsReceive ;
+	XmlHttp.open("GET" , eventData , true ) ; XmlHttp.send(null) ;
+}
+
+function eventsReceive()
+{
+if (DEBUGVB && XmlHttp.readyState == 4) console.log("eventReceive() status=" + XmlHttp.status) ;
+
+	if (XmlHttp.readyState != 4 || XmlHttp.status != 200) return ;
+
+if (DEBUGVB) console.log("eventReceive() responseText=" + XmlHttp.responseText) ;
+DbgSpan.innerHTML = XmlHttp.responseText ;
+
+// TODO: method dictionary
+	var events = eval("(" + XmlHttp.responseText + ")") ;
+//	for (event in events) AppEventHandlers[event] ;
+if (DEBUGVB) for (ev in events) console.log("events[" + ev + "]=" + events[ev]) ;
+if (events.hasOwnProperty(BPM_SIGNAL)) handleBpm(events[BPM_SIGNAL]) ;
+if (events.hasOwnProperty(BPI_SIGNAL)) handleBpi(events[BPI_SIGNAL]) ;
+if (events.hasOwnProperty(PROGRESS_SIGNAL)) handleProgress(events[PROGRESS_SIGNAL]) ;
+//if (events.hasOwnProperty(''))
+}
+
+
+// output events from app
+
+function handleBpm(bpm) { Bpm = bpm ; updateStatus() ; }
+
+function handleBpi(bpi) { Bpi = bpi ; updateStatus() ; updateLoopTable() ; }
+
+function handleProgress(beat)
+{
+	if (Beat == beat) return ;
+
+if (DEBUGVB) console.log("nCells=" + LoopTr.cells.length); if (!LoopTr.cells.length) return ;
+
+	if (Beat > beat) for (var i = 0 ; i < LoopTr.cells.length ; ++i)
+		LoopTr.cells[i].style.backgroundColor = 'transparent' ;
+
+	for (var i = 0 ; i < beat ; ++i) LoopTr.cells[i].style.backgroundColor = PROGRESS_COLOR ;
+	LoopTr.cells[beat].style.backgroundColor = BEAT_COLOR ;
+
+	Beat = beat ; updateStatus() ;
+}
+
+function updateStatus()
+	{ StatusRTd.innerHTML =  (Beat + 1) + "/" + Bpi + " BPI @ " + Bpm + " BPM" ; }
+
+function updateLoopTable()
+{
+if (DEBUG) console.log("updateLoopTable() nCells=" +  LoopTr.cells.length + " Bpi=" + Bpi) ;
+
+	var nCells = LoopTr.cells.length ;
+	while (nCells > Bpi)
+	{
+		ChordsTr.removeChild(LoopTr.cells[nCells]) ;
+		LoopTr.removeChild(LoopTr.cells[nCells--]) ;
+	}
+	while (nCells++ < Bpi)
+		{ ChordsTr.appendChild(newEmptyCell()) ; LoopTr.appendChild(newEmptyCell()) ; }
+}
+
+function newEmptyCell()
+	{ var cell = document.createElement('td') ; cell.innerHTML = "&nbsp;" ; return cell ; }
+
 /*
-	var info = eval ( "(" + xmlHttp.responseText + ")" );
-	aSpan.innerHTML = info.jsonData[ 0 ].cmname;
-*/
+function setColSpan()
+{
+var x=document.getElementById('myTable').rows[0].cells;
+x[0].colSpan="2";
+x[1].colSpan="6";
 }
+*/
 
-</script>
-</body>
-</html>
+console.log("client loaded") ;
+	</script>
+</head><body onload="initGui();"></body></html>

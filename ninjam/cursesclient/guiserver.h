@@ -17,11 +17,19 @@
 #define CLIENT_HTML "client.html"
 
 // gui messages
+#define DATA_KEY "data"
+#define PING_SIGNAL "load.js"
+#define PONG_SIGNAL "loadGui() ;"
+#define GET_SIGNAL ""
+#define INIT_SIGNAL "init"
+#define BPM_SIGNAL "bpm"
+#define BPI_SIGNAL "bpi"
 #define METROMUTE_SIGNAL "metromute"
+#define CHAT_SIGNAL "chat"
 // incoming gui messages (unsure if there would be any unpaired incoming msgs)
 //e.g.#define UPVOTE_SIGNAL "upvote"
 // outgoing gui messages
-//e.g.#define PROGRESS_SIGNAL "progress"
+#define PROGRESS_SIGNAL "progress"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -69,9 +77,15 @@ class GuiServer : public WebServerBaseClass
 		virtual IPageGenerator *onConnection(JNL_HTTPServ* serv , int port) ;
 
 	private:
-		void onMetroMuteEvent(JNL_HTTPServ *serv , std::stringstream* outputJSON) ;
+		void returnInitEvents(std::stringstream* outputJSON) ;
+		void returnBpmEvent(std::stringstream* outputJSON) ;
+		void returnBpiEvent(std::stringstream* outputJSON) ;
+		void handleMetroMuteEvent(char* data) ;
+		void returnMetroMuteEvent(std::stringstream* outputJSON) ;
+		void handleChatEvent(char* data) ;
+		void returnCoreEvents(std::stringstream* outputJSON) ;
 
-int N = 0 ;
+//int N = 0 ;
 } ;
 
 #endif // _GUI_SERVER_H_
