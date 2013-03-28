@@ -1,0 +1,3 @@
+# example launch script for cninjam
+
+./cninjam ninbot.com:2050 -user anonymous:my_display_name

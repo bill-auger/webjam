@@ -1,0 +1,73 @@
+<!--
+	in the future we namy simply compile this into the binary
+			but for now this file needs to be in the path of the executable
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title>An XHTML 1.0 Strict standard template</title>
+	<meta http-equiv="content-type" 
+		content="text/html;charset=utf-8" />
+
+	<style type="text/css">
+
+body { color:"white" ; background-color:"black" ; }
+
+	</style>
+</head>
+
+<body>hello
+<script type="text/javascript">
+
+var SIGNAL_READY_INTERVAL = 100 ;
+console.log("client loaded");
+
+var xmlHttp = null ;
+
+
+var body = document.getElementsByTagName('body')[0] ;
+var aForm = document.createElement('form') ;
+var textInput = document.createElement('input') ;
+var submitInput = document.createElement('input') ;
+var aSpan = document.createElement('span') ;
+
+textInput.type = 'text' ;
+textInput.autoforus = 'autofocus' ;
+submitInput.type = 'button' ;
+submitInput.onclick = req ;
+
+body.appendChild(aForm) ;
+aForm.appendChild(textInput) ;
+aForm.appendChild(submitInput) ;
+aForm.appendChild(aSpan) ;
+
+function req()
+{
+console.log("req() textInput.value=" + textInput.value) ;
+
+var METROMUTE_SIGNAL = "metromute" ;
+// TODO regualar polling with message queue
+	var Url = "events?" + METROMUTE_SIGNAL + "=" + textInput.value ;
+
+	xmlHttp = new XMLHttpRequest() ;
+	xmlHttp.onreadystatechange = resp ;
+	xmlHttp.open("GET" , Url , true ) ;
+	xmlHttp.send(null) ;
+}
+
+function resp()
+{
+	if (xmlHttp.readyState != 4 || xmlHttp.status != 200) return ;
+console.log("resp() xmlHttp.responseText=" + xmlHttp.responseText) ;
+aSpan.innerHTML = xmlHttp.responseText ;
+/*
+	var info = eval ( "(" + xmlHttp.responseText + ")" );
+	aSpan.innerHTML = info.jsonData[ 0 ].cmname;
+*/
+}
+
+</script>
+</body>
+</html>

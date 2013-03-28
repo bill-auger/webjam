@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Release" />
+	<File name="WDL/jnetlib/connection.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="2027" topLine="39" />
+	</File>
+	<File name="WDL/jnetlib/connection.h" open="0" top="0" tabpos="0">
+		<Cursor position="4831" topLine="45" />
+	</File>
+	<File name="WDL/jnetlib/httpserv.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="4706" topLine="7" />
+	</File>
+	<File name="WDL/jnetlib/httpserv.h" open="0" top="0" tabpos="0">
+		<Cursor position="1033" topLine="9" />
+	</File>
+	<File name="WDL/jnetlib/webserver.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="7459" topLine="49" />
+	</File>
+	<File name="WDL/vorbisencdec.h" open="0" top="0" tabpos="4">
+		<Cursor position="6652" topLine="0" />
+	</File>
+	<File name="ninjam/audiostream_alsa.cpp" open="0" top="0" tabpos="1">
+		<Cursor position="7164" topLine="43" />
+	</File>
+	<File name="ninjam/cursesclient/cursesclient.cpp" open="1" top="0" tabpos="1">
+		<Cursor position="47714" topLine="63" />
+	</File>
+	<File name="ninjam/cursesclient/guiserver.cpp" open="1" top="1" tabpos="3">
+		<Cursor position="1320" topLine="0" />
+	</File>
+	<File name="ninjam/cursesclient/guiserver.h" open="1" top="0" tabpos="2">
+		<Cursor position="290" topLine="0" />
+	</File>
+	<File name="ninjam/njclient.cpp" open="0" top="0" tabpos="2">
+		<Cursor position="36610" topLine="219" />
+	</File>
+	<File name="ninjam/njclient.h" open="1" top="0" tabpos="4">
+		<Cursor position="3845" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>

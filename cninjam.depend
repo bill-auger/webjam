@@ -1,0 +1,255 @@
+# depslib dependency file v1.0
+1125438554 source:/home/me/src/ninjam/cninjam/ninjam/audiostream_alsa.cpp
+	<stdio.h>
+	<stdlib.h>
+	<errno.h>
+	<signal.h>
+	<unistd.h>
+	<fcntl.h>
+	<pthread.h>
+	<alsa/asoundlib.h>
+	<sys/ioctl.h>
+	<sys/soundcard.h>
+	"../WDL/pcmfmtcvt.h"
+	"../WDL/ptrlist.h"
+	"audiostream.h"
+
+1125372790 /home/me/src/ninjam/cninjam/WDL/pcmfmtcvt.h
+
+1125372790 /home/me/src/ninjam/cninjam/WDL/ptrlist.h
+	"heapbuf.h"
+
+1125372789 /home/me/src/ninjam/cninjam/WDL/heapbuf.h
+
+1125372064 /home/me/src/ninjam/cninjam/ninjam/audiostream.h
+
+1364357298 source:/home/me/src/ninjam/cninjam/ninjam/cursesclient/cursesclient.cpp
+	<windows.h>
+	"curses.h"
+	"cursesclientinst.h"
+	<stdlib.h>
+	<memory.h>
+	<curses.h>
+	<stdio.h>
+	<ctype.h>
+	<math.h>
+	<signal.h>
+	<float.h>
+	"../audiostream.h"
+	"../njclient.h"
+	"../../WDL/dirscan.h"
+	"../../WDL/lineparse.h"
+	"../njmisc.h"
+	"guiserver.h"
+
+1125371766 /home/me/src/ninjam/cninjam/ninjam/njclient.h
+	<windows.h>
+	<stdlib.h>
+	<memory.h>
+	<stdio.h>
+	<time.h>
+	"../WDL/string.h"
+	"../WDL/ptrlist.h"
+	"../WDL/jnetlib/jnetlib.h"
+	"../WDL/sha.h"
+	"../WDL/rng.h"
+	"../WDL/mutex.h"
+	"../WDL/wavwrite.h"
+	"netmsg.h"
+
+1125372790 /home/me/src/ninjam/cninjam/WDL/string.h
+	"heapbuf.h"
+
+1118264380 /home/me/src/ninjam/cninjam/WDL/jnetlib/jnetlib.h
+	"netinc.h"
+	"util.h"
+	"asyncdns.h"
+	"connection.h"
+	"httpget.h"
+	"httpserv.h"
+	"listen.h"
+
+1118264380 /home/me/src/ninjam/cninjam/WDL/jnetlib/netinc.h
+	<windows.h>
+	<stdio.h>
+	<time.h>
+	<pthread.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<sys/time.h>
+	<arpa/inet.h>
+	<netdb.h>
+	<stdarg.h>
+	<stdio.h>
+	<fcntl.h>
+	<unistd.h>
+	<signal.h>
+	<stdlib.h>
+	<errno.h>
+	<string.h>
+
+1118264380 /home/me/src/ninjam/cninjam/WDL/jnetlib/util.h
+
+1118264380 /home/me/src/ninjam/cninjam/WDL/jnetlib/asyncdns.h
+
+1118264380 /home/me/src/ninjam/cninjam/WDL/jnetlib/connection.h
+	"asyncdns.h"
+
+1118264380 /home/me/src/ninjam/cninjam/WDL/jnetlib/httpget.h
+	"connection.h"
+
+1118264380 /home/me/src/ninjam/cninjam/WDL/jnetlib/httpserv.h
+	"connection.h"
+
+1118264380 /home/me/src/ninjam/cninjam/WDL/jnetlib/listen.h
+	"connection.h"
+
+1125372790 /home/me/src/ninjam/cninjam/WDL/sha.h
+
+1125372790 /home/me/src/ninjam/cninjam/WDL/rng.h
+
+1125372790 /home/me/src/ninjam/cninjam/WDL/mutex.h
+	<windows.h>
+	<pthread.h>
+
+1125372790 /home/me/src/ninjam/cninjam/WDL/wavwrite.h
+	<stdio.h>
+	"pcmfmtcvt.h"
+
+1125371766 /home/me/src/ninjam/cninjam/ninjam/netmsg.h
+	"../WDL/queue.h"
+	"../WDL/jnetlib/jnetlib.h"
+
+1125372790 /home/me/src/ninjam/cninjam/WDL/queue.h
+	"heapbuf.h"
+
+1125372789 /home/me/src/ninjam/cninjam/WDL/dirscan.h
+	"string.h"
+	<sys/types.h>
+	<dirent.h>
+
+1125372790 /home/me/src/ninjam/cninjam/WDL/lineparse.h
+
+1125371767 /home/me/src/ninjam/cninjam/ninjam/njmisc.h
+	"../../WDL/string.h"
+	"../../jesusonic/jesusonic_dll.h"
+
+1125371766 source:/home/me/src/ninjam/cninjam/ninjam/mpb.cpp
+	<windows.h>
+	<stdlib.h>
+	<memory.h>
+	"mpb.h"
+
+1125371766 /home/me/src/ninjam/cninjam/ninjam/mpb.h
+	"netmsg.h"
+
+1125371766 source:/home/me/src/ninjam/cninjam/ninjam/netmsg.cpp
+	<windows.h>
+	<stdlib.h>
+	<memory.h>
+	"netmsg.h"
+
+1125371766 source:/home/me/src/ninjam/cninjam/ninjam/njclient.cpp
+	<math.h>
+	<stdio.h>
+	<stdarg.h>
+	"njclient.h"
+	"mpb.h"
+	"../WDL/pcmfmtcvt.h"
+	"../WDL/wavwrite.h"
+	"../WDL/vorbisencdec.h"
+
+1125372790 /home/me/src/ninjam/cninjam/WDL/vorbisencdec.h
+	"vorbis/vorbisenc.h"
+	"vorbis/codec.h"
+	"../WDL/queue.h"
+
+1125371767 source:/home/me/src/ninjam/cninjam/ninjam/njmisc.cpp
+	<windows.h>
+	<string.h>
+	<stdio.h>
+	<math.h>
+	<float.h>
+	"njmisc.h"
+
+1118264380 source:/home/me/src/ninjam/cninjam/WDL/jnetlib/asyncdns.cpp
+	"netinc.h"
+	"util.h"
+	"asyncdns.h"
+
+1118264380 source:/home/me/src/ninjam/cninjam/WDL/jnetlib/connection.cpp
+	"netinc.h"
+	"util.h"
+	"connection.h"
+
+1118264380 source:/home/me/src/ninjam/cninjam/WDL/jnetlib/httpget.cpp
+	"netinc.h"
+	"util.h"
+	"httpget.h"
+
+1364356786 source:/home/me/src/ninjam/cninjam/WDL/jnetlib/httpserv.cpp
+	"netinc.h"
+	"util.h"
+	"httpserv.h"
+
+1118264380 source:/home/me/src/ninjam/cninjam/WDL/jnetlib/listen.cpp
+	"netinc.h"
+	"util.h"
+	"listen.h"
+
+1118264380 source:/home/me/src/ninjam/cninjam/WDL/jnetlib/test.cpp
+	<windows.h>
+	<stdio.h>
+	"jnetlib.h"
+	"webserver.h"
+
+1118264380 /home/me/src/ninjam/cninjam/WDL/jnetlib/webserver.h
+	"httpserv.h"
+
+1118264380 source:/home/me/src/ninjam/cninjam/WDL/jnetlib/testbnc.cpp
+	<windows.h>
+	<stdio.h>
+	"jnetlib.h"
+
+1118264380 source:/home/me/src/ninjam/cninjam/WDL/jnetlib/util.cpp
+	"netinc.h"
+	"util.h"
+
+1125372790 source:/home/me/src/ninjam/cninjam/WDL/rng.cpp
+	<windows.h>
+	<stdlib.h>
+	<memory.h>
+	<string.h>
+	"rng.h"
+	"sha.h"
+
+1125372790 source:/home/me/src/ninjam/cninjam/WDL/sha.cpp
+	<windows.h>
+	<stdlib.h>
+	<string.h>
+	"sha.h"
+
+1364284613 source:/home/me/src/ninjam/cninjam/ninjam/webserver.cpp
+	<windows.h>
+	<stdio.h>
+	"../WDL/jnetlib/jnetlib.h"
+	"../WDL/jnetlib/webserver.h"
+
+1364380381 /home/me/src/ninjam/cninjam/ninjam/cursesclient/guiserver.h
+	<windows.h>
+	<sstream>
+	"../../WDL/jnetlib/jnetlib.h"
+	"../../WDL/jnetlib/webserver.h"
+
+1364386759 source:/home/me/src/ninjam/cninjam/ninjam/cursesclient/guiserver.cpp
+	<fstream>
+	"guiserver.h"
+	"../njclient.h"
+
+1364288512 source:/home/me/src/ninjam/cninjam/WDL/jnetlib/webserver.cpp
+	<windows.h>
+	"jnetlib.h"
+	"webserver.h"
+

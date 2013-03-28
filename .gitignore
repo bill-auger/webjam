@@ -1,0 +1,18 @@
+
+# .gitignore for webjam
+
+#project files
+#*.cbp
+#*.depend
+#*.layout
+
+# build files
+*Makefile
+obj/
+
+# executables
+bin/
+
+# temp files
+*.kate-swp
+*~

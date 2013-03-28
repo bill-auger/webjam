@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="cninjam" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/cninjam" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin/Debug" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="ninjamer.com:2049 -user anonymous:mr_jonze_testing" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/cninjam" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin/Release" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="ninjamer.com:2049 -user anonymous:mr_jonze_testing" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add directory="../" />
+		</Compiler>
+		<Linker>
+			<Add option="`pkg-config --libs  vorbis`" />
+			<Add option="`pkg-config --libs  vorbisenc`" />
+			<Add library="/usr/lib/i386-linux-gnu/libasound.so" />
+			<Add library="/usr/lib/i386-linux-gnu/libncurses.so" />
+		</Linker>
+		<ExtraCommands>
+			<Add before="rm -r -f ./*.ninjam" />
+			<Add before="rm -r -f ./bin/Debug/*.ninjam" />
+			<Add before="rm -r -f ./bin/Release/*.ninjam" />
+		</ExtraCommands>
+		<Unit filename="WDL/dirscan.h" />
+		<Unit filename="WDL/heapbuf.h" />
+		<Unit filename="WDL/jnetlib/asyncdns.cpp" />
+		<Unit filename="WDL/jnetlib/asyncdns.h" />
+		<Unit filename="WDL/jnetlib/connection.cpp" />
+		<Unit filename="WDL/jnetlib/connection.h" />
+		<Unit filename="WDL/jnetlib/httpget.cpp" />
+		<Unit filename="WDL/jnetlib/httpget.h" />
+		<Unit filename="WDL/jnetlib/httpserv.cpp" />
+		<Unit filename="WDL/jnetlib/httpserv.h" />
+		<Unit filename="WDL/jnetlib/jnetlib.h" />
+		<Unit filename="WDL/jnetlib/listen.cpp" />
+		<Unit filename="WDL/jnetlib/listen.h" />
+		<Unit filename="WDL/jnetlib/netinc.h" />
+		<Unit filename="WDL/jnetlib/util.cpp" />
+		<Unit filename="WDL/jnetlib/util.h" />
+		<Unit filename="WDL/jnetlib/webserver.cpp" />
+		<Unit filename="WDL/jnetlib/webserver.h" />
+		<Unit filename="WDL/lineparse.h" />
+		<Unit filename="WDL/mutex.h" />
+		<Unit filename="WDL/pcmfmtcvt.h" />
+		<Unit filename="WDL/ptrlist.h" />
+		<Unit filename="WDL/queue.h" />
+		<Unit filename="WDL/rng.cpp" />
+		<Unit filename="WDL/rng.h" />
+		<Unit filename="WDL/sha.cpp" />
+		<Unit filename="WDL/sha.h" />
+		<Unit filename="WDL/string.h" />
+		<Unit filename="WDL/vorbisencdec.h" />
+		<Unit filename="WDL/wavwrite.h" />
+		<Unit filename="ninjam/audiostream.h" />
+		<Unit filename="ninjam/audiostream_alsa.cpp" />
+		<Unit filename="ninjam/cursesclient/cursesclient.cpp" />
+		<Unit filename="ninjam/cursesclient/guiserver.cpp" />
+		<Unit filename="ninjam/cursesclient/guiserver.h" />
+		<Unit filename="ninjam/mpb.cpp" />
+		<Unit filename="ninjam/mpb.h" />
+		<Unit filename="ninjam/netmsg.cpp" />
+		<Unit filename="ninjam/netmsg.h" />
+		<Unit filename="ninjam/njclient.cpp" />
+		<Unit filename="ninjam/njclient.h" />
+		<Unit filename="ninjam/njmisc.cpp" />
+		<Unit filename="ninjam/njmisc.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
