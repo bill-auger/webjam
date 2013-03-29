@@ -17,23 +17,30 @@ body { color: #fff ; background-color: #000 ;
 
 #headerDiv  { position: absolute ; overflow: hidden ;
               left: 0px ; top: 0px ; height: 24px ; right: 0px ; }
-#contentDiv { position: absolute ; overflow: auto ;
-              left: 0px ; top: 24px ; bottom: 80px ; right: 0px ; }
+#mixerDiv   { position: absolute ; overflow: hidden ;
+              left: 0px ; top: 24px ; bottom: 80px ; width: 68% ;
+              /*resize: horizontal ;*/ border-radius: 10px 10px 10px 10px ; }
+#chatDiv    { position: absolute ; overflow: auto ;
+              top: 24px ; bottom: 80px ; right: 0px ; width: 31% ;
+              /*resize: horizontal ;*/ border-radius: 10px 10px 10px 10px ; }
 #footerDiv  { position:absolute ; overflow: hidden ;
               left: 0px ; bottom: 0px ; height: 80px ; right: 0px ;  }
 
 table , #chatTextTd , #chatEntryInput { width: 100% ; }
+#statusLTd , #statusRTd { width: 25% ; } #statusCTd { width: 50% ; }
+
 #chatEntryInput { position: relative ; left: -2px ; }
 #chatSubmitInput { width: 32px ; height: 24px ; }
 
-div , #chordsTr td , #statusTable , #statusTable td { border: 1px solid white ; }
-#statusLTd , #statusRTd { width: 25% ; } #statusCTd { width: 50% ; }
+#mixerDiv , #chatDiv { border: 3px solid white ; }
+#chordsTr td , #statusTable , #statusTable td { border: 1px solid white ; }
+#statusTable , #statusTable td , #chordsTr td , #loopTr td { border-radius: 8px 8px 8px 8px ; }
 
 	</style>
 
 	<script type="text/javascript">
 // DEBUG
-var DEBUG = false ;
+var DEBUG = true ;
 var DEBUGVB = false ;
 var DBG_SEED_CHAT = true ;
 var DbgTextInput
@@ -41,9 +48,13 @@ var DbgSpan ;
 
 var INIT_INTERVAL = 1000 ;
 var POLL_INTERVAL = 1000 ;//125 ;
+var NET_TIMEOUT = 10000 ;
+var CONNECT_MSG = "connecting to webjam ...." ;
+var DISCONNECT_MSG = "disconnected" ;
 
 // sparse messages
 var INIT_SIGNAL = 'init' ;
+var URL_SIGNAL = 'url' ;
 var BPM_SIGNAL = 'bpm' ;
 var BPI_SIGNAL = 'bpi' ;
 var MASTERVOL_SIGNAL = 'mastervol' ;
@@ -62,6 +73,7 @@ var BEAT_COLOR = 'green' ;
 
 var Events = new Array() ; // [ [event , data] , ... ]
 var AppEventHandlers = new Object() ; // { EVENT: data ; , ... }
+AppEventHandlers[URL_SIGNAL] = handleRemoteUrl ;
 AppEventHandlers[BPM_SIGNAL] = handleBpm ;
 AppEventHandlers[BPI_SIGNAL] = handleBpi ;
 AppEventHandlers[MASTERVOL_SIGNAL] = handleMasterVol ;
@@ -82,6 +94,7 @@ var StatusLTd ;
 var StatusCTd ;
 var StatusRTd ;
 
+var Ts = Date.now() ; // for NET_TIMEOUT
 var PollInterval ;
 var XmlHttp ;
 
@@ -109,7 +122,9 @@ function initGui()
 	var headerTd = document.createElement('td') ;
 var metroMuteInput = document.createElement('input') ;
 
-	var contentDiv = document.createElement('div') ;
+	var mixerDiv = document.createElement('div') ;
+
+	var chatDiv = document.createElement('div') ;
 	ChatMessagesTable = document.createElement('table') ;
 
 	var chatEntryTable = document.createElement('table') ;
@@ -138,7 +153,9 @@ metroMuteInput.type = 'button' ;
 metroMuteInput.value = 'MetroMute' ;
 metroMuteInput.onclick = toggleMetroMute ;
 
-	contentDiv.setAttribute('id' , 'contentDiv') ;
+	mixerDiv.setAttribute('id' , 'mixerDiv') ;
+
+	chatDiv.setAttribute('id' , 'chatDiv') ;
 	chatTextTd.setAttribute('id' , 'chatTextTd') ;
 	ChatEntryInput.setAttribute('id' , 'chatEntryInput') ;
 	ChatEntryInput.type = 'text' ;
@@ -152,6 +169,7 @@ metroMuteInput.onclick = toggleMetroMute ;
 
 	footerDiv.setAttribute('id' , 'footerDiv') ;
 	ChordsTr.setAttribute('id' , 'chordsTr') ;
+	LoopTr.setAttribute('id' , 'loopTr') ;
 	statusTable.setAttribute('id' , 'statusTable') ;
 	StatusLTd.setAttribute('id' , 'statusLTd') ;
 	StatusCTd.setAttribute('id' , 'statusCTd') ;
@@ -166,9 +184,11 @@ metroMuteInput.onclick = toggleMetroMute ;
 	headerTr.appendChild(headerTd) ;
 	headerTd.appendChild(metroMuteInput) ; headerTd.appendChild(DbgSpan) ;
 
-	Body.appendChild(contentDiv) ;
-	contentDiv.appendChild(ChatMessagesTable) ;
-	contentDiv.appendChild(chatEntryTable) ;
+	Body.appendChild(mixerDiv) ;
+
+	Body.appendChild(chatDiv) ;
+	chatDiv.appendChild(ChatMessagesTable) ;
+	chatDiv.appendChild(chatEntryTable) ;
 	chatEntryTable.appendChild(chatEntryTr) ;
 	chatEntryTr.appendChild(chatTextTd) ;
 	chatTextTd.appendChild(ChatEntryInput) ;
@@ -186,6 +206,20 @@ metroMuteInput.onclick = toggleMetroMute ;
 	statusTr.appendChild(StatusRTd) ;
 
 	PollInterval = window.setInterval(function() { initSend() ; } , INIT_INTERVAL) ;
+
+if (DBG_SEED_CHAT) { handleChat("chat0") ; handleChat("chat1") ; handleChat("chat2") ; handleChat("chat3") ;
+handleChat("chat4") ; handleChat("chat5") ; handleChat("chat6") ; handleChat("chat7") ;
+handleChat("chat8") ; handleChat("chat9") ; handleChat("chat10") ; handleChat("chat11") ;
+handleChat("chat12") ; handleChat("chat13") ; handleChat("chat14") ; handleChat("chat15") ;
+handleChat("chat16") ; handleChat("chat17") ; handleChat("chat18") ; handleChat("chat19") ;
+handleChat("chat20") ; handleChat("chat21") ; handleChat("chat22") ; handleChat("chat23") ;
+handleChat("chat0") ; handleChat("chat1") ; handleChat("chat2") ; handleChat("chat3") ;
+handleChat("chat4") ; handleChat("chat5") ; handleChat("chat6") ; handleChat("chat7") ;
+handleChat("chat8") ; handleChat("chat9") ; handleChat("chat10") ; handleChat("chat11") ;
+handleChat("chat12") ; handleChat("chat13") ; handleChat("chat14") ; handleChat("chat15") ;
+handleChat("chat16") ; handleChat("chat17") ; handleChat("chat18") ; handleChat("chat19") ;
+handleChat("chat20") ; handleChat("chat21") ; handleChat("chat22") ; handleChat("chat23") ; }
+else handleChat("chat0") ;
 }
 
 
@@ -205,6 +239,8 @@ function initSend()
 {
 if (DEBUG) console.log("initSend()") ;
 
+	handleChat(CONNECT_MSG) ;
+
 	XmlHttp = new XMLHttpRequest() ; XmlHttp.onreadystatechange = initReceive ;
 	XmlHttp.open("GET" , INIT_SIGNAL , true ) ; XmlHttp.send(null) ;
 }
@@ -218,29 +254,19 @@ if (DEBUG && XmlHttp.readyState == 4) console.log("initReceive() status=" + XmlH
 	window.clearInterval(PollInterval) ;
 	PollInterval = window.setInterval(eventSend , POLL_INTERVAL) ;
 
-if (DEBUG) console.log("initReceive() responseText=" + (DbgSpan.innerHTML = XmlHttp.responseText)) ;
+if (DEBUG) { console.log("initReceive() responseText=" + (DbgSpan.innerHTML = XmlHttp.responseText)) ;
+	handleChat("resp=" + XmlHttp.responseText) ; }
 if (DEBUG) { var eventsObj = eval("(" + XmlHttp.responseText + ")") ;
-	for (ev in eventsObj) console.log("eventsObj[" + ev + "]=" + eventsObj[ev]) ; }
+	for (ev in eventsObj) { var dbg = "eventsObj[" + ev + "]=" + eventsObj[ev] ; console.log(dbg) ; handleChat(dbg) ; } }
 
 	dispachEvents(eval("(" + XmlHttp.responseText + ")")) ;
-
-if (DBG_SEED_CHAT) { handleChat("chat0") ; handleChat("chat1") ; handleChat("chat2") ; handleChat("chat3") ;
-handleChat("chat4") ; handleChat("chat5") ; handleChat("chat6") ; handleChat("chat7") ;
-handleChat("chat8") ; handleChat("chat9") ; handleChat("chat10") ; handleChat("chat11") ;
-handleChat("chat12") ; handleChat("chat13") ; handleChat("chat14") ; handleChat("chat15") ;
-handleChat("chat16") ; handleChat("chat17") ; handleChat("chat18") ; handleChat("chat19") ;
-handleChat("chat20") ; handleChat("chat21") ; handleChat("chat22") ; handleChat("chat23") ;
-handleChat("chat0") ; handleChat("chat1") ; handleChat("chat2") ; handleChat("chat3") ;
-handleChat("chat4") ; handleChat("chat5") ; handleChat("chat6") ; handleChat("chat7") ;
-handleChat("chat8") ; handleChat("chat9") ; handleChat("chat10") ; handleChat("chat11") ;
-handleChat("chat12") ; handleChat("chat13") ; handleChat("chat14") ; handleChat("chat15") ;
-handleChat("chat16") ; handleChat("chat17") ; handleChat("chat18") ; handleChat("chat19") ;
-handleChat("chat20") ; handleChat("chat21") ; handleChat("chat22") ; handleChat("chat23") ; }
-else handleChat("chat0") ;
 }
 
 function eventSend()
 {
+	if (Date.now() > Ts + NET_TIMEOUT)
+		{ handleChat(DISCONNECT_MSG) ; window.location = RemoteUrl ; return ; }
+
 	var eventData = Events.shift() || "idle" ;
 
 if (DEBUGVB) console.log("eventSend() event=" + eventData) ;
@@ -263,10 +289,13 @@ if (DEBUGVB) console.log("eventReceive() responseText=" + XmlHttp.responseText) 
 
 function dispachEvents(eventsObj)
 {
+	Ts = Date.now() ;
+
 // TODO: method dictionary
 //	for (event in eventsObj) AppEventHandlers[event] ;
 
 if (DEBUGVB) for (ev in eventsObj) console.log("eventsObj[" + ev + "]=" + eventsObj[ev]) ;
+if (eventsObj.hasOwnProperty(URL_SIGNAL)) handleRemoteUrl(eventsObj[URL_SIGNAL]) ;
 if (eventsObj.hasOwnProperty(BPM_SIGNAL)) handleBpm(eventsObj[BPM_SIGNAL]) ;
 if (eventsObj.hasOwnProperty(BPI_SIGNAL)) handleBpi(eventsObj[BPI_SIGNAL]) ;
 if (eventsObj.hasOwnProperty(MASTERVOL_SIGNAL)) handleMasterVol(eventsObj[MASTERVOL_SIGNAL]) ;
@@ -281,6 +310,10 @@ if (eventsObj.hasOwnProperty(PROGRESS_SIGNAL)) handleProgress(eventsObj[PROGRESS
 
 
 // output events from app
+
+function handleRemoteUrl(url) { RemoteUrl = url ;
+handleChat("url="+ url) ;
+}
 
 function handleBpm(bpm) { Bpm = bpm ; updateStatus() ; }
 

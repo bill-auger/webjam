@@ -11,13 +11,15 @@ extern WDL_PtrList<char> g_chat_queue ;
 IPageGenerator* GuiServer::onConnection(JNL_HTTPServ *serv , int port)
 {
 	char* event = serv->get_request_file() ; event++ ;
-	char* data = serv->get_request_parm(DATA_KEY) ;
+	char* data = serv->get_request_parm(DATA_KEY) ; bool isData = (data && *data) ;
 	serv->set_reply_header(HTTP_REPLY_SERVER) ;
 
 	// via remote script (poll)
 	if (!strcmp(event , PING_SIGNAL))
 	{
 //printf("%dload.js" , N++) ;
+
+		remoteUrl = (isData && !strncmp(data , "http" , 4))? std::string(data) : std::string(DEFAULT_URL) ; // remote url - store this for return when app closes
 
 		// the remote load script that contains the ninjam:// link that triggered this app
 		//		polls us until we reply that the js client can be requested confidently
@@ -48,8 +50,8 @@ IPageGenerator* GuiServer::onConnection(JNL_HTTPServ *serv , int port)
 
 	if (!strcmp(event , INIT_SIGNAL)) returnInitState(&outputJSON) ;
 	else if (!strcmp(event , METROMUTE_SIGNAL))
-		{ handleMetroMuteEvent(data) ; returnMetroMuteState(&outputJSON) ; }
-	else if (!strcmp(event , CHAT_SIGNAL)) handleChatEvent(data) ;
+		{ handleMetroMuteEvent() ; returnMetroMuteState(&outputJSON) ; }
+	else if (!strcmp(event , CHAT_SIGNAL) && isData) handleChatEvent(data) ;
 
 	returnCoreState(&outputJSON) ;
 	const std::string& outStr = outputJSON.str() ; unsigned int len = outStr.length() ;
@@ -59,6 +61,7 @@ IPageGenerator* GuiServer::onConnection(JNL_HTTPServ *serv , int port)
 
 void GuiServer::returnInitState(std::stringstream* outputJSON)
 {
+	returnRemoteUrl(outputJSON) ;
 	returnBpmState(outputJSON) ;
 	returnBpiState(outputJSON) ;
 	returnMasterVolState(outputJSON) ;
@@ -67,8 +70,11 @@ void GuiServer::returnInitState(std::stringstream* outputJSON)
 	returnMetroVolState(outputJSON) ;
 	returnMetroPanState(outputJSON) ;
 	returnMetroMuteState(outputJSON) ;
-//returnChatState(outputJSON) ;
 }
+
+// remote url
+void GuiServer::returnRemoteUrl(std::stringstream* out)
+	{ *out << URL_SIGNAL << ":'" << remoteUrl << "'," ; }
 
 /// bpm & bpi
 void GuiServer::returnBpmState(std::stringstream* out)
@@ -94,8 +100,7 @@ void GuiServer::returnMetroVolState(std::stringstream* out)
 void GuiServer::returnMetroPanState(std::stringstream* out)
 	{ *out << METROPAN_SIGNAL << ":" << g_client->config_metronome_pan << "," ; }
 
-//TODO: as we are async - let's be specific and use eventData here
-void GuiServer::handleMetroMuteEvent(char* data)
+void GuiServer::handleMetroMuteEvent()
 	{ g_client->config_metronome_mute = !g_client->config_metronome_mute ; }
 
 void GuiServer::returnMetroMuteState(std::stringstream* out)

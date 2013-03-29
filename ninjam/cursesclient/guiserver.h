@@ -15,6 +15,7 @@
 
 // resources
 #define CLIENT_HTML "client.html"
+#define DEFAULT_URL "http://teamstream.heroku.com/noclient.html"
 
 // gui messages
 #define DATA_KEY "data"
@@ -22,6 +23,7 @@
 #define PONG_SIGNAL "loadGui() ;"
 #define GET_SIGNAL ""
 #define INIT_SIGNAL "init"
+#define URL_SIGNAL "url"
 #define BPM_SIGNAL "bpm"
 #define BPI_SIGNAL "bpi"
 #define MASTERVOL_SIGNAL "mastervol"
@@ -82,6 +84,7 @@ class GuiServer : public WebServerBaseClass
 		virtual IPageGenerator *onConnection(JNL_HTTPServ* serv , int port) ;
 
 	private:
+		void returnRemoteUrl(std::stringstream* outputJSON) ;
 		void returnInitState(std::stringstream* outputJSON) ;
 		void returnBpmState(std::stringstream* outputJSON) ;
 		void returnBpiState(std::stringstream* outputJSON) ;
@@ -90,11 +93,12 @@ class GuiServer : public WebServerBaseClass
 		void returnMasterMuteState(std::stringstream* outputJSON) ;
 		void returnMetroVolState(std::stringstream* outputJSON) ;
 		void returnMetroPanState(std::stringstream* outputJSON) ;
-		void handleMetroMuteEvent(char* data) ;
+		void handleMetroMuteEvent() ;
 		void returnMetroMuteState(std::stringstream* outputJSON) ;
 		void handleChatEvent(char* data) ;
 		void returnCoreState(std::stringstream* outputJSON) ;
 
+		std::string remoteUrl ;
 //int N = 0 ;
 } ;
 

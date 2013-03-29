@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title>An XHTML 1.0 Strict standard template</title>
+	<meta http-equiv="content-type"
+		content="text/html;charset=utf-8" />
+
+	<style type="text/css">
+
+body { color: "white" ; background-color: "black" ; }
+
+	</style>
+
+	<script type="text/javascript">
+
+var GUI_SERVER_CLIENT_URL = "http://127.0.0.1:8080/" ;
+var GUI_SERVER_LOADSCRIPT_URL = GUI_SERVER_CLIENT_URL + "load.js" ;
+var LOADSCRIPT_INTERVAL = 1000 ; var N_SCRIPTS = 1 ; // # of <script> tags globally
+
+var Body ;
+var StatusSpan ;
+var ReloadIvl ;
+
+
+function init()
+{
+	Body = document.getElementsByTagName('body')[0] ;
+	var launchA = document.createElement('a') ;
+	StatusSpan = document.createElement('span') ;
+
+	launchA.href = "webjam://ninjamer:2050" ;
+	launchA.innerHTML = "launch" ;
+	launchA.onclick = initLoadScript ;
+
+	Body.appendChild(launchA) ;
+	Body.appendChild(document.createElement('br')) ;
+	Body.appendChild(StatusSpan) ;
+}
+
+function initLoadScript()
+{
+	StatusSpan.innerHTML = " .... launching webjam .... " ;
+	ReloadIvl = window.setInterval(getLoadScript , LOADSCRIPT_INTERVAL) ;
+}
+
+function getLoadScript()
+{
+console.log("getLoadScript()") ;
+
+	// poll local gui server for script that will call our loadGui() function
+	var scripts = document.getElementsByTagName("script") ; var nScripts = scripts.length ;
+	var loadScript = document.createElement('script') ;
+	loadScript.setAttribute("type" , "text/javascript") ;
+	loadScript.setAttribute("src" , GUI_SERVER_LOADSCRIPT_URL + "?data=" + window.location) ;
+	if (nScripts > N_SCRIPTS) Body.removeChild(scripts[nScripts - 1]) ;
+	Body.appendChild(loadScript) ;
+}
+
+function loadGui()
+{
+console.log("loadGui()") ;
+
+	ReloadIvl = window.clearInterval(ReloadIvl) ;
+	window.location = GUI_SERVER_CLIENT_URL ;
+}
+
+console.log("\n\n\n\nreload");
+	</script>
+</head><body onload="init() ;"></body></html>
