@@ -61,15 +61,38 @@ void GuiServer::returnInitState(std::stringstream* outputJSON)
 {
 	returnBpmState(outputJSON) ;
 	returnBpiState(outputJSON) ;
+	returnMasterVolState(outputJSON) ;
+	returnMasterPanState(outputJSON) ;
+	returnMasterMuteState(outputJSON) ;
+	returnMetroVolState(outputJSON) ;
+	returnMetroPanState(outputJSON) ;
 	returnMetroMuteState(outputJSON) ;
 //returnChatState(outputJSON) ;
 }
 
+/// bpm & bpi
 void GuiServer::returnBpmState(std::stringstream* out)
 	{ *out << BPM_SIGNAL << ":" << g_client->GetActualBPM() << "," ; }
 
 void GuiServer::returnBpiState(std::stringstream* out)
 	{ *out << BPI_SIGNAL << ":" << g_client->GetBPI() << "," ; }
+
+// master
+void GuiServer::returnMasterVolState(std::stringstream* out)
+	{ *out << MASTERVOL_SIGNAL << ":" << g_client->config_mastervolume << "," ; }
+
+void GuiServer::returnMasterPanState(std::stringstream* out)
+	{ *out << MASTERPAN_SIGNAL << ":" << g_client->config_masterpan << "," ; }
+
+void GuiServer::returnMasterMuteState(std::stringstream* out)
+	{ *out << MASTERMUTE_SIGNAL << ":" << g_client->config_mastermute << "," ; }
+
+// metronome
+void GuiServer::returnMetroVolState(std::stringstream* out)
+	{ *out << METROVOL_SIGNAL << ":" << g_client->config_metronome << "," ; }
+
+void GuiServer::returnMetroPanState(std::stringstream* out)
+	{ *out << METROPAN_SIGNAL << ":" << g_client->config_metronome_pan << "," ; }
 
 //TODO: as we are async - let's be specific and use eventData here
 void GuiServer::handleMetroMuteEvent(char* data)
@@ -78,6 +101,10 @@ void GuiServer::handleMetroMuteEvent(char* data)
 void GuiServer::returnMetroMuteState(std::stringstream* out)
 	{ *out << METROMUTE_SIGNAL << ":" << ((g_client->config_metronome_mute)? "1" : "0") << "," ; }
 
+// locals
+//const char *sname=g_audio->GetChannelName(sch);
+
+// chat
 void GuiServer::handleChatEvent(char* data) {
 unsigned int len = strlen(data) + 1 ;
 		char decoded[len] ; url_decode(data , decoded , len) ;
@@ -86,6 +113,7 @@ unsigned int len = strlen(data) + 1 ;
 
 //void handleChatPvtEvent(char* destFullUserName , char* chatMsg) { g_client->ChatMessage_Send("PRIVMSG" , destFullUserName , chatMsg) ; }
 
+// core
 void GuiServer::returnCoreState(std::stringstream* out)
 {
 	// interval progress

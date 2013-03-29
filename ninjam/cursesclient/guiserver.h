@@ -24,6 +24,11 @@
 #define INIT_SIGNAL "init"
 #define BPM_SIGNAL "bpm"
 #define BPI_SIGNAL "bpi"
+#define MASTERVOL_SIGNAL "mastervol"
+#define MASTERPAN_SIGNAL "masterpan"
+#define MASTERMUTE_SIGNAL "mastermute"
+#define METROVOL_SIGNAL "metrovol"
+#define METROPAN_SIGNAL "metropan"
 #define METROMUTE_SIGNAL "metromute"
 #define CHAT_SIGNAL "chat"
 // incoming gui messages (unsure if there would be any unpaired incoming msgs)
@@ -80,6 +85,11 @@ class GuiServer : public WebServerBaseClass
 		void returnInitState(std::stringstream* outputJSON) ;
 		void returnBpmState(std::stringstream* outputJSON) ;
 		void returnBpiState(std::stringstream* outputJSON) ;
+		void returnMasterVolState(std::stringstream* outputJSON) ;
+		void returnMasterPanState(std::stringstream* outputJSON) ;
+		void returnMasterMuteState(std::stringstream* outputJSON) ;
+		void returnMetroVolState(std::stringstream* outputJSON) ;
+		void returnMetroPanState(std::stringstream* outputJSON) ;
 		void handleMetroMuteEvent(char* data) ;
 		void returnMetroMuteState(std::stringstream* outputJSON) ;
 		void handleChatEvent(char* data) ;

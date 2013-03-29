@@ -39,6 +39,7 @@
 		<Linker>
 			<Add option="`pkg-config --libs  vorbis`" />
 			<Add option="`pkg-config --libs  vorbisenc`" />
+			<Add option="`pkg-config --libs  jack`" />
 			<Add library="/usr/lib/i386-linux-gnu/libasound.so" />
 			<Add library="/usr/lib/i386-linux-gnu/libncurses.so" />
 		</Linker>
@@ -79,6 +80,7 @@
 		<Unit filename="WDL/wavwrite.h" />
 		<Unit filename="ninjam/audiostream.h" />
 		<Unit filename="ninjam/audiostream_alsa.cpp" />
+		<Unit filename="ninjam/audiostream_jack.cpp" />
 		<Unit filename="ninjam/cursesclient/cursesclient.cpp" />
 		<Unit filename="ninjam/cursesclient/guiserver.cpp" />
 		<Unit filename="ninjam/cursesclient/guiserver.h" />

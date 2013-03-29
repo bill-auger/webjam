@@ -12,18 +12,30 @@
 
 	<style type="text/css">
 
-body { color: #fff ; background-color: #000 ; }
-/*#mainTable { position: fixed ; margin: auto ; }*/
-#contentTr , #chatTable { height: 100% ; }
-table , #chatEntryInput { width: 100% ; }
-#progressTable { width: 100% ; border: 1px solid white ; }
+body { color: #fff ; background-color: #000 ;
+       width: 100% ; height: 100% ; margin: 0 ; padding: 0 ; }
+
+#headerDiv  { position: absolute ; overflow: hidden ;
+              left: 0px ; top: 0px ; height: 24px ; right: 0px ; }
+#contentDiv { position: absolute ; overflow: auto ;
+              left: 0px ; top: 24px ; bottom: 80px ; right: 0px ; }
+#footerDiv  { position:absolute ; overflow: hidden ;
+              left: 0px ; bottom: 0px ; height: 80px ; right: 0px ;  }
+
+table , #chatTextTd , #chatEntryInput { width: 100% ; }
+#chatEntryInput { position: relative ; left: -2px ; }
+#chatSubmitInput { width: 32px ; height: 24px ; }
+
+div , #chordsTr td , #statusTable , #statusTable td { border: 1px solid white ; }
+#statusLTd , #statusRTd { width: 25% ; } #statusCTd { width: 50% ; }
 
 	</style>
 
 	<script type="text/javascript">
 // DEBUG
-var DEBUG = true ;
+var DEBUG = false ;
 var DEBUGVB = false ;
+var DBG_SEED_CHAT = true ;
 var DbgTextInput
 var DbgSpan ;
 
@@ -34,16 +46,32 @@ var POLL_INTERVAL = 1000 ;//125 ;
 var INIT_SIGNAL = 'init' ;
 var BPM_SIGNAL = 'bpm' ;
 var BPI_SIGNAL = 'bpi' ;
+var MASTERVOL_SIGNAL = 'mastervol' ;
+var MASTERPAN_SIGNAL = 'masterpan' ;
+var MASTERMUTE_SIGNAL = 'mastermute' ;
+var METROVOL_SIGNAL = 'metrovol' ;
+var METROPAN_SIGNAL = 'metropan' ;
 var METROMUTE_SIGNAL = 'metromute' ;
 var CHAT_SIGNAL = 'chat' ;
 // periodic messages
 var PROGRESS_SIGNAL = 'progress' ;
 
-var MAX_CHAT_LINES = 5 ;
+var MAX_CHAT_LINES = 50 ;
 var PROGRESS_COLOR = 'blue' ;
 var BEAT_COLOR = 'green' ;
 
 var Events = new Array() ; // [ [event , data] , ... ]
+var AppEventHandlers = new Object() ; // { EVENT: data ; , ... }
+AppEventHandlers[BPM_SIGNAL] = handleBpm ;
+AppEventHandlers[BPI_SIGNAL] = handleBpi ;
+AppEventHandlers[MASTERVOL_SIGNAL] = handleMasterVol ;
+AppEventHandlers[MASTERPAN_SIGNAL] = handleMasterPan ;
+AppEventHandlers[MASTERMUTE_SIGNAL] = handleMasterMute ;
+AppEventHandlers[METROVOL_SIGNAL] = handleMetroVol ;
+AppEventHandlers[METROPAN_SIGNAL] = handleMetroPan ;
+AppEventHandlers[METROMUTE_SIGNAL] = handleMetroMute ;
+AppEventHandlers[CHAT_SIGNAL] = handleChat ;
+AppEventHandlers[PROGRESS_SIGNAL] = handleProgress ;
 
 var Body ;
 var ChatMessagesTable ;
@@ -51,83 +79,110 @@ var ChatEntryInput ;
 var ChordsTr ;
 var LoopTr ;
 var StatusLTd ;
-var StatusLMd ;
-var StatusLRd ;
+var StatusCTd ;
+var StatusRTd ;
 
 var PollInterval ;
 var XmlHttp ;
 
 var Bpm ;
 var Bpi ;
+var MasterVol ;
+var MasterPan ;
+var MasterMute ;
+var MetroVol ;
+var MetroPan ;
+var MetroMute ;
 var Beat ;
 
 
 function initGui()
 {
 	Body = document.getElementsByTagName('body')[0] ;
-	var mainTable = document.createElement('table') ;
-	var menuTr = document.createElement('tr') ;
-	var contentTr = document.createElement('tr') ;
-	var metroMuteInput = document.createElement('input') ;
-	var chatTable = document.createElement('table') ;
-	var chatMessagesTr = document.createElement('tr') ;
-	var chatMessagesTd = document.createElement('td') ;
+
+
+	// instantiation
+
+	var headerDiv = document.createElement('div') ;
+	var headerTable = document.createElement('table') ;
+	var headerTr = document.createElement('tr') ;
+	var headerTd = document.createElement('td') ;
+var metroMuteInput = document.createElement('input') ;
+
+	var contentDiv = document.createElement('div') ;
 	ChatMessagesTable = document.createElement('table') ;
+
+	var chatEntryTable = document.createElement('table') ;
 	var chatEntryTr = document.createElement('tr') ;
-	var chatEntryTd = document.createElement('td') ;
+	var chatTextTd = document.createElement('td') ;
 	ChatEntryInput = document.createElement('input') ;
-	var chatSubmitTd = document.createElement('td') ;
+	var chatBtnsTd = document.createElement('td') ;
 	var chatSubmitInput = document.createElement('input') ;
 DbgSpan = document.createElement('span') ;
-	var progressTr = document.createElement('tr') ;
+
+	var footerDiv = document.createElement('div') ;
 	var progressTable = document.createElement('table') ;
 	ChordsTr = document.createElement('tr') ;
 	LoopTr = document.createElement('tr') ;
-	var statusbarTr = document.createElement('tr') ;
 	var statusTable = document.createElement('table') ;
 	var statusTr = document.createElement('tr') ;
 	StatusLTd = document.createElement('td') ;
-	StatusMTd = document.createElement('td') ;
+	StatusCTd = document.createElement('td') ;
 	StatusRTd = document.createElement('td') ;
 
-	metroMuteInput.type = 'button' ;
-	metroMuteInput.value = 'MetroMute' ;
-	metroMuteInput.onclick = toggleMetroMute ;
 
-	contentTr.setAttribute('id' , 'contentTr') ;
-	chatTable.setAttribute('id' , 'chatTable') ;
+	// configuration
+
+	headerDiv.setAttribute('id' , 'headerDiv') ;
+metroMuteInput.type = 'button' ;
+metroMuteInput.value = 'MetroMute' ;
+metroMuteInput.onclick = toggleMetroMute ;
+
+	contentDiv.setAttribute('id' , 'contentDiv') ;
+	chatTextTd.setAttribute('id' , 'chatTextTd') ;
 	ChatEntryInput.setAttribute('id' , 'chatEntryInput') ;
 	ChatEntryInput.type = 'text' ;
 	ChatEntryInput.autoforus = 'autofocus' ;
 	ChatEntryInput.onkeydown = function(ev)
-		{ var key = ev.keyCode || ev.which ; if (key == 13) sendChat() ; }	
+		{ var key = ev.keyCode || ev.which ; if (key == 13) sendChat() ; }
+	chatSubmitInput.setAttribute('id' , 'chatSubmitInput') ;
 	chatSubmitInput.type = 'button' ;
 	chatSubmitInput.value = 'Chat' ;
 	chatSubmitInput.onclick = sendChat ;
-	progressTable.setAttribute('id' , 'progressTable') ;
 
-	Body.appendChild(mainTable) ;
-	mainTable.appendChild(menuTr) ;
-menuTr.appendChild(metroMuteInput) ; menuTr.appendChild(DbgSpan) ;
-	mainTable.appendChild(contentTr) ;
-	contentTr.appendChild(chatTable) ;
-	chatTable.appendChild(chatMessagesTr) ;
-	chatMessagesTr.appendChild(chatMessagesTd) ;
-	chatMessagesTd.appendChild(ChatMessagesTable) ;
-	chatTable.appendChild(chatEntryTr) ;
-	chatEntryTr.appendChild(chatEntryTd) ;
-	chatEntryTd.appendChild(ChatEntryInput) ;
-	chatEntryTr.appendChild(chatSubmitTd) ;
-	chatSubmitTd.appendChild(chatSubmitInput) ;
-	mainTable.appendChild(progressTr) ;
-	progressTr.appendChild(progressTable) ;
+	footerDiv.setAttribute('id' , 'footerDiv') ;
+	ChordsTr.setAttribute('id' , 'chordsTr') ;
+	statusTable.setAttribute('id' , 'statusTable') ;
+	StatusLTd.setAttribute('id' , 'statusLTd') ;
+	StatusCTd.setAttribute('id' , 'statusCTd') ;
+	StatusRTd.setAttribute('id' , 'statusRTd') ;
+
+
+	// topology
+
+	Body.appendChild(headerDiv) ;
+	headerDiv.appendChild(headerTable) ;
+	headerTable.appendChild(headerTr) ;
+	headerTr.appendChild(headerTd) ;
+	headerTd.appendChild(metroMuteInput) ; headerTd.appendChild(DbgSpan) ;
+
+	Body.appendChild(contentDiv) ;
+	contentDiv.appendChild(ChatMessagesTable) ;
+	contentDiv.appendChild(chatEntryTable) ;
+	chatEntryTable.appendChild(chatEntryTr) ;
+	chatEntryTr.appendChild(chatTextTd) ;
+	chatTextTd.appendChild(ChatEntryInput) ;
+	chatEntryTr.appendChild(chatBtnsTd) ;
+	chatBtnsTd.appendChild(chatSubmitInput) ;
+
+	Body.appendChild(footerDiv) ;
+	footerDiv.appendChild(progressTable) ;
 	progressTable.appendChild(ChordsTr) ;
 	progressTable.appendChild(LoopTr) ;
-	mainTable.appendChild(statusbarTr) ;
-	statusbarTr.appendChild(statusTable) ;
+	footerDiv.appendChild(statusTable) ;
 	statusTable.appendChild(statusTr) ;
 	statusTr.appendChild(StatusLTd) ;
-	statusTr.appendChild(StatusMTd) ;
+	statusTr.appendChild(StatusCTd) ;
 	statusTr.appendChild(StatusRTd) ;
 
 	PollInterval = window.setInterval(function() { initSend() ; } , INIT_INTERVAL) ;
@@ -164,15 +219,24 @@ if (DEBUG && XmlHttp.readyState == 4) console.log("initReceive() status=" + XmlH
 	PollInterval = window.setInterval(eventSend , POLL_INTERVAL) ;
 
 if (DEBUG) console.log("initReceive() responseText=" + (DbgSpan.innerHTML = XmlHttp.responseText)) ;
+if (DEBUG) { var eventsObj = eval("(" + XmlHttp.responseText + ")") ;
+	for (ev in eventsObj) console.log("eventsObj[" + ev + "]=" + eventsObj[ev]) ; }
 
 	dispachEvents(eval("(" + XmlHttp.responseText + ")")) ;
 
-handleChat("chat0") ; handleChat("chat1") ; handleChat("chat2") ; handleChat("chat3") ;
+if (DBG_SEED_CHAT) { handleChat("chat0") ; handleChat("chat1") ; handleChat("chat2") ; handleChat("chat3") ;
 handleChat("chat4") ; handleChat("chat5") ; handleChat("chat6") ; handleChat("chat7") ;
 handleChat("chat8") ; handleChat("chat9") ; handleChat("chat10") ; handleChat("chat11") ;
 handleChat("chat12") ; handleChat("chat13") ; handleChat("chat14") ; handleChat("chat15") ;
 handleChat("chat16") ; handleChat("chat17") ; handleChat("chat18") ; handleChat("chat19") ;
 handleChat("chat20") ; handleChat("chat21") ; handleChat("chat22") ; handleChat("chat23") ;
+handleChat("chat0") ; handleChat("chat1") ; handleChat("chat2") ; handleChat("chat3") ;
+handleChat("chat4") ; handleChat("chat5") ; handleChat("chat6") ; handleChat("chat7") ;
+handleChat("chat8") ; handleChat("chat9") ; handleChat("chat10") ; handleChat("chat11") ;
+handleChat("chat12") ; handleChat("chat13") ; handleChat("chat14") ; handleChat("chat15") ;
+handleChat("chat16") ; handleChat("chat17") ; handleChat("chat18") ; handleChat("chat19") ;
+handleChat("chat20") ; handleChat("chat21") ; handleChat("chat22") ; handleChat("chat23") ; }
+else handleChat("chat0") ;
 }
 
 function eventSend()
@@ -192,7 +256,7 @@ if (DEBUGVB && XmlHttp.readyState == 4) console.log("eventReceive() status=" + X
 	if (XmlHttp.readyState != 4 || XmlHttp.status != 200) return ;
 
 if (DEBUGVB) console.log("eventReceive() responseText=" + XmlHttp.responseText) ;
-DbgSpan.innerHTML = XmlHttp.responseText ;
+//DbgSpan.innerHTML = XmlHttp.responseText ;
 
 	dispachEvents(eval("(" + XmlHttp.responseText + ")")) ;
 }
@@ -201,9 +265,16 @@ function dispachEvents(eventsObj)
 {
 // TODO: method dictionary
 //	for (event in eventsObj) AppEventHandlers[event] ;
+
 if (DEBUGVB) for (ev in eventsObj) console.log("eventsObj[" + ev + "]=" + eventsObj[ev]) ;
 if (eventsObj.hasOwnProperty(BPM_SIGNAL)) handleBpm(eventsObj[BPM_SIGNAL]) ;
 if (eventsObj.hasOwnProperty(BPI_SIGNAL)) handleBpi(eventsObj[BPI_SIGNAL]) ;
+if (eventsObj.hasOwnProperty(MASTERVOL_SIGNAL)) handleMasterVol(eventsObj[MASTERVOL_SIGNAL]) ;
+if (eventsObj.hasOwnProperty(MASTERPAN_SIGNAL)) handleMasterPan(eventsObj[MASTERPAN_SIGNAL]) ;
+if (eventsObj.hasOwnProperty(MASTERMUTE_SIGNAL)) handleMasterMute(eventsObj[MASTERMUTE_SIGNAL]) ;
+if (eventsObj.hasOwnProperty(METROVOL_SIGNAL)) handleMetroVol(eventsObj[METROVOL_SIGNAL]) ;
+if (eventsObj.hasOwnProperty(METROPAN_SIGNAL)) handleMetroPan(eventsObj[METROPAN_SIGNAL]) ;
+if (eventsObj.hasOwnProperty(METROMUTE_SIGNAL)) handleMetroMute(eventsObj[METROMUTE_SIGNAL]) ;
 if (eventsObj.hasOwnProperty(CHAT_SIGNAL)) handleChat(eventsObj[CHAT_SIGNAL]) ;
 if (eventsObj.hasOwnProperty(PROGRESS_SIGNAL)) handleProgress(eventsObj[PROGRESS_SIGNAL]) ;
 }
@@ -214,6 +285,14 @@ if (eventsObj.hasOwnProperty(PROGRESS_SIGNAL)) handleProgress(eventsObj[PROGRESS
 function handleBpm(bpm) { Bpm = bpm ; updateStatus() ; }
 
 function handleBpi(bpi) { Bpi = bpi ; updateStatus() ; updateLoopTable() ; }
+
+// TODO: gui elements for these
+function handleMasterVol(vol) { MasterVol = vol ; updateMaster() ; }
+function handleMasterPan(pan) { MasterPan = pan ; updateMaster() ; }
+function handleMasterMute(isMute) { MasterMute = isMute ; updateMaster() ; }
+function handleMetroVol(vol) { MetroVol = vol ; updateMetro() ; }
+function handleMetroPan(pan) { MetroPan = pan ; updateMetro() ; }
+function handleMetroMute(isMute) { MetroMute = isMute ; updateMetro() ; }
 
 function handleChat(chat)
 {
@@ -236,6 +315,15 @@ if (DEBUGVB) console.log("nCells=" + LoopTr.cells.length); if (!LoopTr.cells.len
 
 	Beat = beat ; updateStatus() ;
 }
+
+
+// event handler helpers
+
+function updateMaster()
+	{ StatusLTd.innerHTML =  "Master " + MasterVol + " " + MasterPan + " " + MasterMute ; }
+
+function updateMetro()
+	{ StatusCTd.innerHTML =  "Metro " + MetroVol + " " + MetroPan + " " + MetroMute ; }
 
 function updateStatus()
 	{ StatusRTd.innerHTML =  (Beat + 1) + "/" + Bpi + " BPI @ " + Bpm + " BPM" ; }
